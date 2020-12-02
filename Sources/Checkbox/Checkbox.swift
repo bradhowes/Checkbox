@@ -58,11 +58,12 @@ iOS 14 now has its own variation of this via UISwitch and its checkbox style.
     private let borderLayer = CAShapeLayer()
     private let checkLayer = CAShapeLayer()
     private var _value: Bool = false { didSet { print("_value = \(_value)") } }
+    private let updateQueue = DispatchQueue(label: "Checkbox", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: .main)
 
     /**
      Construction from an encoded representation.
 
-     - parameter aDecoder: the representation to use
+     - paramameter aDecoder: the representation to use
      */
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -129,9 +130,7 @@ extension Checkbox {
         let point = touch.location(in: self)
         if bounds.contains(point) {
             setChecked(!_value, animated: true)
-            DispatchQueue.main.async {
-                self.sendActions(for: .valueChanged)
-            }
+            updateQueue.async { self.sendActions(for: .valueChanged) }
         }
     }
 }
